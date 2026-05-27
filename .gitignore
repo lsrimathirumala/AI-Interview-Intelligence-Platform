@@ -4,3 +4,4 @@ venv/
 node_modules/
 uploads/
 *.pyc
+interview_ai.db
