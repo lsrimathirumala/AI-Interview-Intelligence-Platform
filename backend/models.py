@@ -9,4 +9,5 @@ class Interview(Base):
     filename = Column(Text, nullable=False)
     file_path = Column(Text, nullable=False)
     content_type = Column(Text)
+    transcript = Column(Text)
     uploaded_at = Column(DateTime(timezone=False), server_default=func.now())

@@ -1,15 +1,25 @@
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
-import os
-import shutil
 
 from database import SessionLocal, Base, engine
 from models import Interview
 import models
+import os
+import shutil
+import imageio_ffmpeg
+
+ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+ffmpeg_dir = os.path.dirname(ffmpeg_path)
+
+os.environ["PATH"] = ffmpeg_dir + os.pathsep + os.environ["PATH"]
+
+import whisper
+
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+whisper_model = whisper.load_model("base")
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -20,6 +30,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.get("/ffmpeg-check")
+def ffmpeg_check():
+    return {
+        "ffmpeg_path": ffmpeg_path,
+        "ffmpeg_exists": os.path.exists(ffmpeg_path),
+        "ffmpeg_dir": ffmpeg_dir
+    }
 
 @app.get("/")
 def home():
@@ -67,7 +85,8 @@ def get_interviews(db: Session = Depends(get_db)):
                 "filename": interview.filename,
                 "file_path": interview.file_path,
                 "content_type": interview.content_type,
-                "uploaded_at": str(interview.uploaded_at)
+                "uploaded_at": str(interview.uploaded_at),
+                "transcript": interview.transcript,
             }
             for interview in interviews
         ]
@@ -85,5 +104,29 @@ def get_interview(interview_id: int, db: Session = Depends(get_db)):
         "filename": interview.filename,
         "file_path": interview.file_path,
         "content_type": interview.content_type,
-        "uploaded_at": str(interview.uploaded_at)
+        "uploaded_at": str(interview.uploaded_at),
+        "transcript": interview.transcript,
+    }
+
+@app.post("/interviews/{interview_id}/transcribe")
+def transcribe_interview(interview_id: int, db: Session = Depends(get_db)):
+    interview = db.query(Interview).filter(Interview.id == interview_id).first()
+
+    if interview is None:
+        raise HTTPException(status_code=404, detail="Interview not found")
+
+    if not os.path.exists(interview.file_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+    result = whisper_model.transcribe(interview.file_path)
+
+    interview.transcript = result["text"]
+    db.commit()
+    db.refresh(interview)
+
+    return {
+        "message": "Transcription completed successfully",
+        "interview_id": interview.id,
+        "filename": interview.filename,
+        "transcript": interview.transcript
     }
