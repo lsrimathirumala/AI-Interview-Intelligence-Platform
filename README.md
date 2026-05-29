@@ -1,48 +1,175 @@
 # AI Interview Intelligence Platform
 
-An AI-powered platform that analyzes mock interview responses using speech-to-text, NLP evaluation, semantic analysis, and progress analytics.
+An AI-powered interview evaluation platform that processes mock interview recordings, generates transcripts using Whisper, and provides structured feedback through NLP-based evaluation pipelines.
+
+---
+
+## Overview
+
+The AI Interview Intelligence Platform helps users improve their interview performance by analyzing recorded responses, generating transcripts, evaluating answer quality, and tracking progress over time.
+
+The long-term vision is to build a production-ready interview coaching system capable of:
+
+* Interview transcription
+* Semantic answer evaluation
+* Feedback generation
+* Progress tracking
+* Personalized learning recommendations
+* Analytics dashboards
 
 ---
 
 ## Features
 
-- Audio/video interview upload
-- Persistent interview metadata storage
-- Speech-to-text transcription pipeline
-- NLP-based answer evaluation
-- Semantic similarity analysis
-- Progress tracking dashboard
-- Async processing pipeline
-- Interview feedback reports
+### Current Features
+
+* Audio interview upload
+* Persistent interview metadata storage
+* Interview retrieval APIs
+* Individual interview lookup
+* Whisper-based speech-to-text transcription
+* Transcript persistence in database
+* Local file storage
+* SQLite-backed development environment
+
+### Planned Features
+
+* Interview evaluation engine
+* Keyword coverage analysis
+* Semantic similarity scoring
+* Filler word detection
+* AI-generated feedback
+* Progress analytics dashboard
+* Authentication and user management
+* Async processing pipeline
+* Cloud deployment
 
 ---
 
 ## Tech Stack
 
-### Frontend
-- React
-- Tailwind CSS
+### Frontend (Planned)
+
+* React
+* Tailwind CSS
 
 ### Backend
-- FastAPI
-- Python
+
+* FastAPI
+* Python
 
 ### Database
-- SQLite (development)
-- PostgreSQL / Supabase (planned production migration)
 
-### AI/NLP
-- Whisper
-- Sentence Transformers
-- FAISS
+* SQLite (Development)
+* PostgreSQL / Supabase (Production)
 
-### Async Processing
-- Celery
-- Redis
+### AI / NLP
 
-### DevOps
-- Docker
-- GitHub Actions
+* OpenAI Whisper
+* Sentence Transformers (Planned)
+* FAISS (Planned)
+
+### Async Processing (Planned)
+
+* Celery
+* Redis
+
+### DevOps (Planned)
+
+* Docker
+* GitHub Actions
+
+---
+
+## Current Architecture
+
+```text
+Client
+  │
+  ▼
+FastAPI Backend
+  │
+  ├── Upload Audio
+  ├── Retrieve Interviews
+  ├── Retrieve Interview by ID
+  └── Transcribe Interview
+          │
+          ▼
+      Whisper
+          │
+          ▼
+      Transcript
+          │
+          ▼
+SQLite Database
+
+Audio Files
+      │
+      ▼
+Local Storage (uploads/)
+```
+
+---
+
+## Available API Endpoints
+
+### Health Check
+
+```http
+GET /health
+```
+
+Returns service status.
+
+---
+
+### Upload Interview
+
+```http
+POST /upload
+```
+
+Uploads an audio file and stores metadata in the database.
+
+#### Response
+
+```json
+{
+  "message": "File uploaded successfully",
+  "interview_id": 1,
+  "filename": "sample-speech-1m.mp3"
+}
+```
+
+---
+
+### Get All Interviews
+
+```http
+GET /interviews
+```
+
+Returns all uploaded interviews.
+
+---
+
+### Get Interview By ID
+
+```http
+GET /interviews/{id}
+```
+
+Returns a single interview record.
+
+---
+
+### Transcribe Interview
+
+```http
+POST /interviews/{id}/transcribe
+```
+
+Generates a transcript using Whisper and stores it in the database.
 
 ---
 
@@ -51,63 +178,79 @@ An AI-powered platform that analyzes mock interview responses using speech-to-te
 ### Phase 1 — Backend MVP
 
 #### Completed
-- [x] FastAPI backend setup
-- [x] Health check endpoint
-- [x] File upload API
-- [x] Persistent database integration
-- [x] Local file storage pipeline
-- [x] SQLite development database setup
-- [x] SQLAlchemy ORM integration
+
+* [x] FastAPI backend setup
+* [x] Health check endpoint
+* [x] File upload API
+* [x] Persistent database integration
+* [x] SQLite development database setup
+* [x] SQLAlchemy ORM integration
+* [x] Interview retrieval API (`GET /interviews`)
+* [x] Individual interview lookup API (`GET /interviews/{id}`)
+* [x] Whisper transcription pipeline
+* [x] Transcript persistence in database
+* [x] Local file storage pipeline
 
 #### In Progress
-- [ ] Whisper transcription pipeline
-- [ ] Interview retrieval APIs
-- [ ] NLP evaluation engine
-- [ ] Async job processing
-- [ ] Frontend dashboard
+
+* [ ] Interview evaluation engine
+* [ ] Transcript analysis and scoring
+* [ ] Evaluation result persistence
+* [ ] Async job processing
+* [ ] Frontend dashboard
+* [ ] Authentication and user management
 
 ---
 
-## Current Architecture
+## Learning Goals
 
-```text
-Client → FastAPI Backend → SQLite Database
-                        → Local File Storage
-```
+This project is being built to gain hands-on experience in:
 
-Planned production architecture:
-
-```text
-Frontend → FastAPI Backend → PostgreSQL/Supabase
-                          → Cloud Object Storage
-                          → Async Workers
-```
+* Backend engineering
+* API design
+* Database design
+* AI inference pipelines
+* NLP systems
+* Full-stack development
+* Scalable system architecture
+* Production deployment practices
 
 ---
 
-## Project Goal
+## Future Roadmap
 
-The platform helps users improve interview performance through AI-generated feedback, transcript analysis, semantic evaluation, and personalized progress tracking.
+### Phase 2
+
+* Evaluation engine v1
+* Keyword coverage scoring
+* Missing concept detection
+* Filler word detection
+
+### Phase 3
+
+* Semantic similarity scoring
+* Embedding generation
+* FAISS vector search
+* Structured feedback generation
+
+### Phase 4
+
+* User authentication
+* Interview history dashboard
+* Analytics and insights
+
+### Phase 5
+
+* Async processing with Celery
+* Redis task queue
+* Dockerized deployment
+* Cloud infrastructure
 
 ---
 
-## Engineering Goals
+## Project Status
 
-- Build production-style backend architecture
-- Implement scalable async processing
-- Explore semantic evaluation pipelines
-- Design measurable AI feedback systems
-- Practice full-stack system design concepts
+🚧 Actively under development
 
----
-
-## Future Improvements
-
-- Real-time interview analysis
-- Emotion/confidence detection
-- Personalized interview recommendations
-- AI-generated improvement suggestions
-- Cloud deployment
-- Authentication and user management
-- RAG-based interview evaluation
-- Advanced analytics dashboard
+Current milestone:
+**End-to-end audio upload → transcription → database persistence pipeline completed.**
