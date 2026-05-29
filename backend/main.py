@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Depends
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 import os
 import shutil
@@ -52,5 +52,38 @@ def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
         "filename": interview.filename,
         "content_type": interview.content_type,
         "saved_path": interview.file_path,
+        "uploaded_at": str(interview.uploaded_at)
+    }
+
+@app.get("/interviews")
+def get_interviews(db: Session = Depends(get_db)):
+    interviews = db.query(Interview).order_by(Interview.uploaded_at.desc()).all()
+
+    return {
+        "count": len(interviews),
+        "interviews": [
+            {
+                "id": interview.id,
+                "filename": interview.filename,
+                "file_path": interview.file_path,
+                "content_type": interview.content_type,
+                "uploaded_at": str(interview.uploaded_at)
+            }
+            for interview in interviews
+        ]
+    }
+
+@app.get("/interviews/{interview_id}")
+def get_interview(interview_id: int, db: Session = Depends(get_db)):
+    interview = db.query(Interview).filter(Interview.id == interview_id).first()
+
+    if interview is None:
+        raise HTTPException(status_code=404, detail="Interview not found")
+
+    return {
+        "id": interview.id,
+        "filename": interview.filename,
+        "file_path": interview.file_path,
+        "content_type": interview.content_type,
         "uploaded_at": str(interview.uploaded_at)
     }
